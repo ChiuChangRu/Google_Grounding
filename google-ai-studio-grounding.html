@@ -190,6 +190,65 @@
       padding: 12px 14px;
       border-radius: 0 var(--radius) var(--radius) 0;
     }
+    .figure {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #0f1115;
+      overflow: hidden;
+      margin: 14px 0;
+    }
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .caption {
+      margin: 0;
+      padding: 10px 12px;
+      background: #111827;
+      color: #dbe7ff;
+      font-size: 14px;
+    }
+    .query-box {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      background: #f8fbff;
+      margin-bottom: 14px;
+    }
+    .query-box code {
+      background: #e9f1ff;
+      border: 1px solid #c9dcff;
+      border-radius: 6px;
+      padding: 5px 8px;
+      color: #0f3b7a;
+      white-space: normal;
+    }
+    .result-list { display: grid; gap: 10px; }
+    .result-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: #fbfcff;
+    }
+    .result-card .source {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .result-card h3 { margin: 0 0 6px; font-size: 18px; }
+    .result-card p { margin: 0; color: var(--muted); }
+    .citation-demo {
+      margin-top: 12px;
+      border-left: 4px solid var(--blue);
+      background: #eef4ff;
+      padding: 12px 14px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
     .source-list {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -256,7 +315,9 @@
       <nav aria-label="頁面導覽">
         <a href="#what">它是什麼</a>
         <a href="#studio">AI Studio 用法</a>
+        <a href="#screenshot">操作截圖</a>
         <a href="#api">可複製 API</a>
+        <a href="#example-results">檢索結果範例</a>
         <a href="#response">回傳資料怎麼讀</a>
         <a href="#features">特性與功能</a>
         <a href="#limits">限制與成本</a>
@@ -289,6 +350,15 @@
             <li>準備開發時，使用 <strong>Get code</strong> 取得程式碼，再依下方 API 範例調整。</li>
           </ol>
           <p class="warn"><strong>重要：</strong>右側 Tools 裡的 <strong>Grounding with Google Search</strong> 必須是啟用狀態。只是在 prompt 裡要求「請附來源」不等於有啟用 grounding，沒打開開關時可能會失效或只產生一般模型回答。</p>
+        </section>
+
+        <section id="screenshot">
+          <h2>操作截圖：右側開關一定要選取</h2>
+          <p>在 AI Studio 的 <strong>Run settings</strong> 面板往下找到 <strong>Tools</strong>，確認 <strong>Grounding with Google Search</strong> 右邊的切換鈕已開啟。這個開關沒打開時，模型不會真的使用 Google Search grounding。</p>
+          <figure class="figure">
+            <img src="assets/ai-studio-grounding-toggle.png" alt="Google AI Studio 右側 Tools 區塊中 Grounding with Google Search 已啟用的截圖">
+            <figcaption class="caption">示意重點：右側 Tools 區塊的 <strong>Grounding with Google Search</strong> 要切到啟用狀態，並顯示 Source: Google Search。</figcaption>
+          </figure>
         </section>
 
         <section id="api">
@@ -344,6 +414,37 @@ print(interaction.output_text)</code></pre>
     "input": "Summarize today AI news with sources.",
     "tools": [{"type": "google_search"}]
   }'</code></pre>
+          </div>
+        </section>
+
+        <section id="example-results">
+          <h2>檢索結果範例</h2>
+          <p>下面用 <strong>醫療導管塗層親水導管</strong> 當作示範查詢，呈現產品頁可以如何把 grounding 結果鑲入回答。這是靜態展示格式，正式產品應以 API 回傳的 <code>annotations</code> 與 <code>google_search_result</code> 動態生成。</p>
+          <div class="query-box">
+            <strong>查詢詞</strong>
+            <code>醫療導管塗層親水導管</code>
+            <a href="https://www.google.com/search?q=%E9%86%AB%E7%99%82%E5%B0%8E%E7%AE%A1%E5%A1%97%E5%B1%A4%E8%A6%AA%E6%B0%B4%E5%B0%8E%E7%AE%A1" target="_blank" rel="noopener">開啟 Google 搜尋</a>
+          </div>
+          <div class="result-list">
+            <article class="result-card">
+              <div class="source">Google Patents</div>
+              <h3><a href="https://patents.google.com/patent/US8133580B2/en" target="_blank" rel="noopener">Coating composition for a urinary catheter (US8133580B2)</a></h3>
+              <p>可作為「泌尿導管親水潤滑塗層」的專利範例，重點在導管用塗層組成、濕潤潤滑性與附著耐久性。</p>
+            </article>
+            <article class="result-card">
+              <div class="source">Google Patents</div>
+              <h3><a href="https://patents.google.com/patent/US7008979B2/en" target="_blank" rel="noopener">Coating composition for multiple hydrophilic applications (US7008979B2)</a></h3>
+              <p>Hydromer 多用途親水塗層平台，可用來說明 PVP、聚氨酯分散液、交聯劑與醫療器材塗層應用的檢索方向。</p>
+            </article>
+            <article class="result-card">
+              <div class="source">PubMed search</div>
+              <h3><a href="https://pubmed.ncbi.nlm.nih.gov/?term=hydrophilic+catheter+coating" target="_blank" rel="noopener">hydrophilic catheter coating</a></h3>
+              <p>適合補充學術文獻面向，例如親水導管、摩擦降低、感染風險、尿道/血管導管臨床使用經驗等。</p>
+            </article>
+          </div>
+          <div class="citation-demo">
+            <strong>回答中可鑲入的引用句範例：</strong>
+            醫療導管親水塗層常見檢索線索包含「PVP 類親水聚合物」、「聚氨酯或交聯網路」、「降低插入摩擦」與「泌尿導管/血管導管應用」；回答時可把每一句技術判斷連到對應專利或文獻來源。
           </div>
         </section>
 
