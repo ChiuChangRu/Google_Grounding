@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Google AI Studio Grounding 教學</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --surface: #ffffff;
+      --ink: #172033;
+      --muted: #596679;
+      --line: #d9dee8;
+      --blue: #1a73e8;
+      --green: #188038;
+      --yellow: #fbbc04;
+      --red: #d93025;
+      --code: #111827;
+      --code-line: #dce8ff;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.65;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 56px; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+    .dot { width: 18px; height: 18px; border-radius: 50%; display: inline-block; }
+    .dot.blue { background: var(--blue); }
+    .dot.red { background: var(--red); }
+    .dot.yellow { background: var(--yellow); }
+    .dot.green { background: var(--green); }
+    .hero {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 34px;
+      margin-bottom: 18px;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    .lead {
+      margin: 0;
+      max-width: 850px;
+      color: var(--muted);
+      font-size: 20px;
+    }
+    .meta {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 11px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    nav {
+      position: sticky;
+      top: 16px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+    }
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 6px;
+      color: var(--ink);
+      font-size: 14px;
+    }
+    nav a:hover { background: #eef4ff; text-decoration: none; }
+    section {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px;
+      margin-bottom: 18px;
+    }
+    h2 { margin: 0 0 16px; font-size: 28px; line-height: 1.25; }
+    h3 { margin: 18px 0 8px; font-size: 19px; }
+    p { margin: 0 0 12px; }
+    ul, ol { margin: 0; padding-left: 22px; }
+    li { margin: 6px 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      background: #fbfcff;
+    }
+    .card h3 { margin-top: 0; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .step {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: #f9fbff;
+    }
+    .step strong {
+      display: inline-flex;
+      width: 30px;
+      height: 30px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .code-card {
+      border: 1px solid #273449;
+      border-radius: var(--radius);
+      background: var(--code);
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .code-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid #273449;
+      color: var(--code-line);
+      font-size: 13px;
+    }
+    button.copy {
+      border: 1px solid #4b5f7c;
+      background: #1f2a3a;
+      color: #fff;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+    }
+    button.copy:hover { background: #29364a; }
+    pre {
+      margin: 0;
+      padding: 16px;
+      overflow-x: auto;
+      color: #f5f8ff;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    code { font-family: Consolas, "SFMono-Regular", Menlo, monospace; }
+    .warn {
+      border-left: 4px solid var(--yellow);
+      background: #fff9e6;
+      padding: 12px 14px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    .source-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .source-list a {
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      background: #fbfcff;
+      color: var(--ink);
+    }
+    .source-list span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 3px;
+    }
+    .compare {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius);
+      font-size: 15px;
+    }
+    .compare th, .compare td {
+      border: 1px solid var(--line);
+      padding: 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+    .compare th { background: #eef4ff; }
+    .footer-note { color: var(--muted); font-size: 13px; margin-top: 18px; }
+
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; }
+      .grid, .source-list, .flow { grid-template-columns: 1fr; }
+      .hero, section { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="topbar" aria-hidden="true">
+      <span class="dot blue"></span>
+      <span class="dot red"></span>
+      <span class="dot yellow"></span>
+      <span class="dot green"></span>
+    </div>
+
+    <header class="hero">
+      <h1>Google AI Studio Grounding 教學</h1>
+      <p class="lead">用 Gemini 接上 Google Search，讓回答可以參考即時公開網頁資料、附上引用來源，並把 API 範例直接複製到專案裡。</p>
+      <div class="meta">
+        <span class="pill">更新依據：Google 官方文件 2026-06-22</span>
+        <span class="pill">核心工具：<code>google_search</code></span>
+        <span class="pill">推薦 API：Interactions API</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="頁面導覽">
+        <a href="#what">它是什麼</a>
+        <a href="#studio">AI Studio 用法</a>
+        <a href="#api">可複製 API</a>
+        <a href="#response">回傳資料怎麼讀</a>
+        <a href="#features">特性與功能</a>
+        <a href="#limits">限制與成本</a>
+        <a href="#compare">和 Perplexity 比較</a>
+        <a href="#sources">官方來源</a>
+      </nav>
+
+      <div>
+        <section id="what">
+          <h2>它是什麼？</h2>
+          <p>Grounding with Google Search 是 Gemini 的內建搜尋工具。開啟後，模型會在需要時自動產生搜尋查詢、讀取搜尋結果、整合資訊，最後輸出帶有引用註記的回答。</p>
+          <p>適合用在最新事件、公司/產品資訊、法規或標準查核、需要來源追溯的問答。它不是「保證正確」的按鈕，而是讓模型回答更可查證。</p>
+          <div class="flow">
+            <div class="step"><strong>1</strong><br>使用者提問</div>
+            <div class="step"><strong>2</strong><br>模型判斷是否搜尋</div>
+            <div class="step"><strong>3</strong><br>執行 Google Search</div>
+            <div class="step"><strong>4</strong><br>整理搜尋結果</div>
+            <div class="step"><strong>5</strong><br>輸出答案與引用</div>
+          </div>
+        </section>
+
+        <section id="studio">
+          <h2>Google AI Studio 用法</h2>
+          <ol>
+            <li>開啟 <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio</a>，建立 Chat prompt 或測試提示。</li>
+            <li>打開右上角的 <strong>Run settings</strong> 面板。</li>
+            <li>在右側 <strong>Tools</strong> 區塊，務必打開 <strong>Grounding with Google Search</strong> 開關；沒有選取這個開關，回答就不會真的使用 Google Search grounding。</li>
+            <li>輸入需要事實查核的問題，例如「整理今天某產業新聞，請附來源」。</li>
+            <li>檢查輸出中的引用來源，不要只看答案文字。</li>
+            <li>準備開發時，使用 <strong>Get code</strong> 取得程式碼，再依下方 API 範例調整。</li>
+          </ol>
+          <p class="warn"><strong>重要：</strong>右側 Tools 裡的 <strong>Grounding with Google Search</strong> 必須是啟用狀態。只是在 prompt 裡要求「請附來源」不等於有啟用 grounding，沒打開開關時可能會失效或只產生一般模型回答。</p>
+        </section>
+
+        <section id="api">
+          <h2>可複製 API 範例</h2>
+          <p>Google 官方文件在 2026 年 6 月後建議新專案優先使用 Interactions API。下面是最小可用版本，重點是把 <code>tools</code> 設為 <code>[{ type: "google_search" }]</code>。</p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span>JavaScript / Node.js</span>
+              <button class="copy" data-copy="js-code">複製</button>
+            </div>
+            <pre id="js-code"><code>import { GoogleGenAI } from "@google/genai";
+
+const client = new GoogleGenAI({});
+
+const interaction = await client.interactions.create({
+  model: "gemini-3.5-flash",
+  input: "Summarize today's AI news with sources.",
+  tools: [{ type: "google_search" }]
+});
+
+console.log(interaction.output_text);</code></pre>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span>Python</span>
+              <button class="copy" data-copy="py-code">複製</button>
+            </div>
+            <pre id="py-code"><code>from google import genai
+
+client = genai.Client()
+
+interaction = client.interactions.create(
+    model="gemini-3.5-flash",
+    input="Summarize today's AI news with sources.",
+    tools=[{"type": "google_search"}],
+)
+
+print(interaction.output_text)</code></pre>
+          </div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span>REST</span>
+              <button class="copy" data-copy="rest-code">複製</button>
+            </div>
+            <pre id="rest-code"><code>curl -X POST "https://generativelanguage.googleapis.com/v1beta/interactions" \
+  -H "x-goog-api-key: $GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gemini-3.5-flash",
+    "input": "Summarize today AI news with sources.",
+    "tools": [{"type": "google_search"}]
+  }'</code></pre>
+          </div>
+        </section>
+
+        <section id="response">
+          <h2>回傳資料怎麼讀</h2>
+          <div class="grid">
+            <div class="card">
+              <h3><code>google_search_call</code></h3>
+              <p>記錄模型實際送出的搜尋查詢。可用來除錯、觀察模型為什麼查了那些關鍵字。</p>
+            </div>
+            <div class="card">
+              <h3><code>google_search_result</code></h3>
+              <p>包含搜尋結果資訊與 <code>search_suggestions</code> HTML。若做成產品 UI，要留意 Google 的展示要求。</p>
+            </div>
+            <div class="card">
+              <h3><code>annotations</code></h3>
+              <p>在模型輸出的文字片段上附 <code>url_citation</code>，包含來源標題、URL、起訖位置。</p>
+            </div>
+            <div class="card">
+              <h3><code>output_text</code></h3>
+              <p>最容易直接顯示的回答文字。不過正式產品應同時顯示來源，不只顯示答案。</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="features">
+          <h2>特性與功能</h2>
+          <div class="grid">
+            <div class="card">
+              <h3>即時公開網頁資訊</h3>
+              <p>可以查詢模型訓練截止後發生的事件，降低過時答案的風險。</p>
+            </div>
+            <div class="card">
+              <h3>自動搜尋與整合</h3>
+              <p>模型會判斷是否需要搜尋，並可產生一個或多個搜尋查詢。</p>
+            </div>
+            <div class="card">
+              <h3>可做引用 UI</h3>
+              <p>透過 <code>url_citation</code> 的文字區間和 URL，把回答中的特定句子連到來源。</p>
+            </div>
+            <div class="card">
+              <h3>可和其他工具搭配</h3>
+              <p>官方文件提到可和 URL context、code execution 等工具組合，用於更完整的研究流程。</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="limits">
+          <h2>限制與成本</h2>
+          <ul>
+            <li>Grounding 不是事實保證器；來源可能不完整、過時或被模型誤讀，重要結論仍要人工檢查。</li>
+            <li>只能查公開可搜尋的網頁。公司內部資料、付費資料庫、私有文件仍需要自建 RAG 或接其他搜尋/資料系統。</li>
+            <li>使用搜尋會增加延遲，也可能增加成本。官方文件指出 Gemini 3 的計費會依模型實際執行的搜尋查詢計算；Gemini 2.5 或更舊模型則按 prompt 計算，正式上線前應重新確認定價頁。</li>
+            <li>在 AI Studio 測試時，如果右側 <strong>Grounding with Google Search</strong> 沒有選取，系統不會啟用 Google Search grounding；這是最常見的失效原因。</li>
+            <li>支援模型會變動。官方文件目前列出 Gemini 3.5 Flash、Gemini 3 系列預覽、Gemini 2.5 系列與 Gemini 2.0 Flash 等支援。</li>
+            <li>舊模型使用 <code>google_search_retrieval</code>；目前文件建議現行模型使用 <code>google_search</code>。</li>
+          </ul>
+          <p class="warn">高風險領域如醫療、法律、金融，不要只把「有引用」當作正確。應檢查引用是否真的支持該句結論。</p>
+        </section>
+
+        <section id="compare">
+          <h2>和 Perplexity 的差異</h2>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>面向</th>
+                <th>Google AI Studio / Gemini Grounding</th>
+                <th>Perplexity 類搜尋問答</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>定位</td>
+                <td>開發者工具，可把 Google Search grounding 嵌入自己的 Gemini app。</td>
+                <td>偏向現成搜尋問答產品，開箱即用。</td>
+              </tr>
+              <tr>
+                <td>控制權</td>
+                <td>可控制 prompt、模型、API 流程、引用 UI、後端整合。</td>
+                <td>產品體驗完整，但底層流程控制通常較少。</td>
+              </tr>
+              <tr>
+                <td>適合</td>
+                <td>要做內部工具、產品功能、RAG 前置查證、可客製化 UI。</td>
+                <td>個人查資料、快速問答、臨時研究。</td>
+              </tr>
+              <tr>
+                <td>注意</td>
+                <td>你要自己處理成本、快取、引用展示、錯誤處理。</td>
+                <td>較少工程負擔，但較難完全客製。</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="sources">
+          <h2>官方來源</h2>
+          <div class="source-list">
+            <a href="https://ai.google.dev/gemini-api/docs/google-search" target="_blank" rel="noopener">
+              Grounding with Google Search
+              <span>工具用法、回傳欄位、引用 annotations、支援模型、定價說明。</span>
+            </a>
+            <a href="https://ai.google.dev/gemini-api/docs/ai-studio-quickstart" target="_blank" rel="noopener">
+              Google AI Studio quickstart
+              <span>AI Studio prompt、Run settings、工具開關、Get code 工作流。</span>
+            </a>
+            <a href="https://ai.google.dev/gemini-api/docs/interactions-overview" target="_blank" rel="noopener">
+              Interactions API
+              <span>2026 年 6 月後 Google 官方建議的新 Gemini API 介面。</span>
+            </a>
+            <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener">
+              Gemini API pricing
+              <span>正式使用前確認 grounding、模型、配額與費用。</span>
+            </a>
+          </div>
+          <p class="footer-note">本頁製作日期：2026-06-27。若拿來做正式產品文件，建議上線前再點官方來源確認一次。</p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.querySelectorAll("button.copy").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const id = button.getAttribute("data-copy");
+        const target = document.getElementById(id);
+        const text = target ? target.innerText : "";
+        try {
+          await navigator.clipboard.writeText(text);
+          const original = button.textContent;
+          button.textContent = "已複製";
+          setTimeout(() => { button.textContent = original; }, 1200);
+        } catch (error) {
+          const range = document.createRange();
+          range.selectNodeContents(target);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+          const copied = document.execCommand("copy");
+          button.textContent = copied ? "已複製" : "請按 Ctrl+C";
+          setTimeout(() => { button.textContent = "複製"; }, 1800);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
